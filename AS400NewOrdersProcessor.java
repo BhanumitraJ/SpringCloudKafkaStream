@@ -9,28 +9,28 @@ import org.springframework.cloud.stream.annotation.Output;
 import org.springframework.cloud.stream.annotation.StreamListener;
 import org.springframework.messaging.handler.annotation.SendTo;
 
-import static com.hbi.oms.order.stream.AS400NewOrdersProcessor.As400NewOrdersProcessor.AS400_NEW_ORDERS_PROCESSOR_INPUT;
+import static com.hbi.oms.order.stream.ThirdPartyNewOrdersProcessor.LegacyNewOrdersProcessor.THIRD_NEW_ORDERS_PROCESSOR_INPUT;
 
-@EnableBinding(AS400NewOrdersProcessor.As400NewOrdersProcessor.class)
+@EnableBinding(ThirdPartyNewOrdersProcessor.LegacyNewOrdersProcessor.class)
 @ConditionalOnProperty(name = "publish-new-orders-to-as400", havingValue = "true")
-public class AS400NewOrdersProcessor {
+public class ThirdPartyNewOrdersProcessor {
 
     @StreamListener
-    @SendTo(As400NewOrdersProcessor.AS400_NEW_ORDERS_PROCESSOR_OUTPUT)
-    public KStream<String, OrderTO> process(@Input(AS400_NEW_ORDERS_PROCESSOR_INPUT) KStream<String, OrderTO> newOrdersStream) {
+    @SendTo(ThirdPartyNewOrdersProcessor.THIRD_PARTY_NEW_ORDERS_PROCESSOR_OUTPUT)
+    public KStream<String, OrderTO> process(@Input(THIRD_PARTY_NEW_ORDERS_PROCESSOR_INPUT) KStream<String, OrderTO> newOrdersStream) {
         return newOrdersStream.filter((key, orderTO) -> "NEW_HORIZON_INTERNATIONAL".equals(orderTO.getSource().getAdditionalProperties().get("SRC_SYSTEM")));
     }
 
-    interface As400NewOrdersProcessor {
+    interface LegacyNewOrdersProcessor {
 
-        String AS400_NEW_ORDERS_PROCESSOR_INPUT = "new-orders";
-        String AS400_NEW_ORDERS_PROCESSOR_OUTPUT = "as400-new-orders";
+        String THIRD_PARTY_NEW_ORDERS_PROCESSOR_INPUT = "new-orders";
+        String THIRD_PARTY_NEW_ORDERS_PROCESSOR_OUTPUT = "legacy-new-orders";
 
-        @Input(AS400_NEW_ORDERS_PROCESSOR_INPUT)
-        KStream as400NewOrdersProcessorInput();
+        @Input(THIRD_PARTY_NEW_ORDERS_PROCESSOR_INPUT)
+        KStream legacyNewOrdersProcessorInput();
 
-        @Output(AS400_NEW_ORDERS_PROCESSOR_OUTPUT)
-        KStream as400NewOrdersProcessorOutput();
+        @Output(THIRD_PARTY_NEW_ORDERS_PROCESSOR_OUTPUT)
+        KStream legacyNewOrdersProcessorOutput();
 
     }
 }
